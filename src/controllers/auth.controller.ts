@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { loginService } from "../services/auth.service";
+import { successResponse } from "../utils/response";
 
 export const registerController = (
   req: Request,
@@ -25,7 +26,7 @@ export const loginController = async (
   try {
     const body = req.body;
     const loginInfo = await loginService(body);
-    res.json(loginInfo);
+    successResponse(res, loginInfo);
   } catch (error) {
     next(error);
   }
