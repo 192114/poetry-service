@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["src/*"],
+      "@generated/*": ["generated/*"]
+    }
   },
-  "include": ["src"],
-  "paths": {
-    "@/*": ["src/*"]
-  }
+  "include": ["src"]
 }

@@ -1,6 +1,6 @@
-import { HttpError } from '../utils/httpError.js'
-
 import type { Request, Response, NextFunction } from 'express'
+
+import { HttpError } from '@/utils/httpError.js'
 
 export const errorMiddleware = (
   err: unknown,

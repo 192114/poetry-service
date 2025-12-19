@@ -1,7 +1,7 @@
-import { HttpError } from '../utils/httpError.js'
-
 import type { Request, Response, NextFunction } from 'express'
 import type { ZodError } from 'zod'
+
+import { HttpError } from '@/utils/httpError.js'
 
 type ParsableSchema = {
   parse: (input: unknown) => unknown

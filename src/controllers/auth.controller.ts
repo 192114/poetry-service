@@ -1,9 +1,9 @@
-import { loginService, registerService } from '../services/auth.service.js'
-import { successResponse } from '../utils/response.js'
-
 import type { Response, NextFunction } from 'express'
-import type { LoginBody, RegisterBody } from '../schemas/auth.schema.js'
-import type { TypedRequest } from '../types/request.ts'
+import type { LoginBody, RegisterBody } from '@/schemas/auth.schema.ts'
+import type { TypedRequest } from '@/types/request.ts'
+
+import { successResponse } from '@/utils/response.js'
+import { loginService, registerService } from '@/services/auth.service.js'
 
 export const registerController = async (
   req: TypedRequest<{ body: RegisterBody }>,

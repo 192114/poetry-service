@@ -1,7 +1,7 @@
-import { prisma } from '../database/prisma.js'
-import { HttpError } from '../utils/httpError.js'
+import type { LoginBody, RegisterBody } from '@/schemas/auth.schema.ts'
 
-import type { LoginBody, RegisterBody } from '../schemas/auth.schema.ts'
+import { prisma } from '@/database/prisma.js'
+import { HttpError } from '@/utils/httpError.js'
 
 export const loginService = async (body: LoginBody) => {
   const user = await prisma.users.findUnique({

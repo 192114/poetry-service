@@ -1,5 +1,5 @@
 import type { Response } from 'express'
-import type { ApiResponse } from '../types/response.ts'
+import type { ApiResponse } from '@/types/response.ts'
 
 export const successResponse = <T>(
   res: Response<ApiResponse<T>>,
