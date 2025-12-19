@@ -7,13 +7,13 @@
 在本项目中，你会看到所有的 import 语句都使用 `.js` 扩展名，例如：
 
 ```typescript
-import { HttpError } from "../utils/httpError.js";
+import { HttpError } from '../utils/httpError.js'
 ```
 
 而不是：
 
 ```typescript
-import { HttpError } from "../utils/httpError.ts";  // ❌ 错误
+import { HttpError } from '../utils/httpError.ts' // ❌ 错误
 ```
 
 **原因如下：**
@@ -27,4 +27,3 @@ import { HttpError } from "../utils/httpError.ts";  // ❌ 错误
 4. **运行时正确性**：编译后的代码在 Node.js 中运行时，实际加载的是 `.js` 文件，因此导入路径必须匹配运行时的实际文件。
 
 **总结：** 虽然源文件是 `.ts`，但导入时必须写 `.js`，这是 TypeScript + ES 模块的标准做法。TypeScript 编译器会自动处理这种映射关系。
-

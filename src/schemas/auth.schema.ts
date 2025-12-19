@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 import {
   usernameSchema,
@@ -6,7 +6,7 @@ import {
   emailSchema,
   emailCodeSchema,
   uuidSchema,
-} from "./common.schema.js";
+} from './common.schema.js'
 
 // 注册schema
 export const registerSchema = z.object({
@@ -17,9 +17,9 @@ export const registerSchema = z.object({
     emailCode: emailCodeSchema,
     emialUuid: uuidSchema,
   }),
-});
+})
 
-export type RegisterBody = z.infer<typeof registerSchema>["body"];
+export type RegisterBody = z.infer<typeof registerSchema>['body']
 
 // 登录schema
 export const loginSchema = z.object({
@@ -27,6 +27,6 @@ export const loginSchema = z.object({
     username: usernameSchema,
     password: passwordSchema,
   }),
-});
+})
 
-export type LoginBody = z.infer<typeof loginSchema>["body"];
+export type LoginBody = z.infer<typeof loginSchema>['body']
