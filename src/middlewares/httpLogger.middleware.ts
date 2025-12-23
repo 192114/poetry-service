@@ -2,12 +2,22 @@ import { randomUUID } from 'node:crypto'
 
 import { pinoHttp } from 'pino-http'
 
+import type { Request } from 'express'
+
 import logger from '@/utils/logger.js'
 import { config } from '@/config/index.js'
 
 // http 请求日志中间件
 export const httpLoggerMiddleware = pinoHttp({
   logger,
+  autoLogging: {
+    ignore: (req: Request) => {
+      return (
+        req.url?.startsWith(`${config.app.apiPrefix}/health/live`) ||
+        req.url?.startsWith(`${config.app.apiPrefix}/health/ready`)
+      )
+    },
+  },
   // 自定义日志序列化
   serializers: {
     req: (req) => ({
