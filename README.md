@@ -2,6 +2,64 @@
 
 ## 使用说明
 
+### 协同开发（新成员加入）
+
+如果你是第一次加入这个项目，请按以下步骤完成环境初始化：
+
+1. **克隆代码仓库**
+
+   ```bash
+   git clone <repository-url>
+   cd node-express-boilerplate
+   ```
+
+2. **安装依赖**
+
+   ```bash
+   pnpm install --frozen-lockfile
+   ```
+
+3. **配置环境变量**
+
+   创建 `.env` 文件（可参考 `.env.example` 如果存在），配置数据库连接：
+
+   ```bash
+   DATABASE_URL="postgresql://app:app@localhost:5432/node_express_boilerplate?schema=public"
+   ```
+
+4. **启动数据库**
+
+   使用 Docker 启动 PostgreSQL 数据库：
+
+   ```bash
+   docker compose --profile dev up -d db
+   ```
+
+5. **初始化数据库**
+
+   **注意**：项目已经包含 Prisma 配置和迁移文件，**不需要执行 `prisma init`**。
+
+   运行数据库迁移以创建表结构：
+
+   ```bash
+   pnpm prisma migrate dev
+   ```
+
+   这会：
+   - 应用所有待执行的迁移文件
+   - 生成 Prisma Client（`pnpm prisma generate` 会自动执行）
+
+6. **启动开发服务器**
+   ```bash
+   pnpm dev
+   ```
+
+**常见问题：**
+
+- 如果数据库连接失败，检查 Docker 容器是否正常运行：`docker compose ps`
+- 如果迁移失败，确保数据库已启动且 `DATABASE_URL` 配置正确
+- 如果 Prisma Client 未生成，手动执行：`pnpm prisma generate`
+
 ## 开发流程
 
 - 依赖：Node.js 20、pnpm（建议开启 corepack），本地需有 Docker。
