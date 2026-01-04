@@ -7,11 +7,100 @@ datasource db {
   provider = "postgresql"
 }
 
-model users {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  username   String   @unique @db.VarChar(255)
-  email      String   @unique
-  password   String
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  updated_at DateTime @default(now()) @db.Timestamptz(6)
+enum UserStatus {
+  ACTIVE
+  DISABLED
+  DELETED
+}
+
+enum CredentialType {
+  PASSWORD
+  GOOGLE
+  GITHUB
+  APPLE
+}
+
+enum VerificationType {
+  REGISTER
+  RESET_PASSWORD
+}
+
+
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+
+  username  String?  @unique @db.VarChar(50)
+  email     String   @unique @db.VarChar(255)
+
+  nickname  String?  @db.VarChar(50)
+  avatarUrl String?  @map("avatar_url")
+
+  status    UserStatus @default(ACTIVE)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // relations
+  credentials UserCredential[]
+  sessions    UserSession[]
+
+  @@map("users")
+}
+
+
+model UserCredential {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type CredentialType
+
+  passwordHash String? @map("password_hash")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([userId, type])
+  @@map("user_credentials")
+}
+
+
+model UserSession {
+  id String @id @default(uuid()) @db.Uuid
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  refreshToken     String   @map("refresh_token")
+  refreshExpiresAt DateTime @map("refresh_expires_at")
+
+  userAgent String? @map("user_agent")
+  ipAddress String? @map("ip_address") @db.Inet
+
+  revoked Boolean @default(false)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@map("user_sessions")
+}
+
+
+model EmailVerification {
+  id String @id @default(uuid()) @db.Uuid
+
+  email String @db.VarChar(255)
+  code  String @db.VarChar(10)
+
+  type VerificationType
+
+  expiresAt DateTime @map("expires_at")
+  used      Boolean  @default(false)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([email])
+  @@map("email_verifications")
 }
