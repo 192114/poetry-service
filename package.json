@@ -12,7 +12,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "prepare": "husky"
+    "prepare": "husky",
+    "prisma:migrate-deploy": "bash db/prisma/migrate.sh migrate deploy",
+    "prisma:migrate-dev": "bash db/prisma/migrate.sh migrate dev"
   },
   "keywords": [],
   "author": "",
