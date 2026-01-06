@@ -5,6 +5,7 @@ export enum ErrorCode {
   UNAUTHORIZED = 1002,
   FORBIDDEN = 1003,
   NOT_FOUND = 1004,
+  TOO_MANY_REQUESTS = 1005,
 
   // 认证相关错误码 (2000-2999)
   INVALID_TOKEN = 2001,
@@ -27,6 +28,7 @@ const HTTP_STATUS_MAP: Record<ErrorCode, number> = {
   [ErrorCode.INVALID_TOKEN]: 401,
   [ErrorCode.TOKEN_EXPIRED]: 401,
   [ErrorCode.INVALID_CREDENTIALS]: 401,
+  [ErrorCode.TOO_MANY_REQUESTS]: 429,
 }
 
 export class HttpError extends Error {

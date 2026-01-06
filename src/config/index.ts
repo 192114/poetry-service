@@ -31,6 +31,15 @@ export const config = {
   redis: {
     url: env.REDIS_URL,
   },
+  // Email 配置
+  email: {
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    user: env.SMTP_USER,
+    secure: env.SMTP_SECURE,
+    password: env.SMTP_PASSWORD,
+    from: env.SMTP_FROM,
+  },
   // CORS 配置
   cors: {
     origin: env.CORS_ORIGIN === '*' ? true : env.CORS_ORIGIN.split(','),

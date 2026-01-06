@@ -1,10 +1,10 @@
 import { z } from 'zod'
 
-export const usernameSchema = z
+export const nicknameSchema = z
   .string()
-  .min(3, '用户名至少 3 位')
-  .max(20, '用户名最多 20 位')
-  .regex(/^[a-zA-Z0-9_]+$/, '用户名只能包含字母数字下划线')
+  .min(3, '昵称至少 3 位')
+  .max(10, '昵称最多 10 位')
+  .regex(/^[a-zA-Z0-9_]+$/, '昵称只能包含字母数字下划线')
 
 export const passwordSchema = z
   .string()

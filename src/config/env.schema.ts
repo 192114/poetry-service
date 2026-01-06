@@ -78,6 +78,14 @@ export const envSchema = z.object({
   // Redis 配置
   REDIS_URL: z.url().optional(),
 
+  // Email 配置
+  SMTP_HOST: z.string().min(1, 'SMTP_HOST is required'),
+  SMTP_PORT: z.string().regex(/^\d+$/).transform(Number).default(587),
+  SMTP_SECURE: z.string().transform(Boolean).default(false),
+  SMTP_USER: z.string().min(1, 'SMTP_USER is required'),
+  SMTP_PASSWORD: z.string().min(1, 'SMTP_PASSWORD is required'),
+  SMTP_FROM: z.email({ message: 'SMTP_FROM must be a valid email address' }),
+
   // CORS 配置
   CORS_ORIGIN: corsOriginSchema,
 })

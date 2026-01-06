@@ -10,7 +10,6 @@ CREATE TYPE "VerificationType" AS ENUM ('REGISTER', 'RESET_PASSWORD');
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL,
-    "username" VARCHAR(50),
     "email" VARCHAR(255) NOT NULL,
     "nickname" VARCHAR(50),
     "avatar_url" TEXT,
@@ -51,17 +50,15 @@ CREATE TABLE "user_sessions" (
 CREATE TABLE "email_verifications" (
     "id" UUID NOT NULL,
     "email" VARCHAR(255) NOT NULL,
-    "code" VARCHAR(10) NOT NULL,
+    "codeHash" VARCHAR(255) NOT NULL,
     "type" "VerificationType" NOT NULL,
     "expires_at" TIMESTAMP(3) NOT NULL,
     "used" BOOLEAN NOT NULL DEFAULT false,
+    "attempts" SMALLINT NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "email_verifications_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "users_username_key" ON "users"("username");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");

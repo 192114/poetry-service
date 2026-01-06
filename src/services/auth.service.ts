@@ -4,9 +4,9 @@ import { prisma } from '@/database/prisma.js'
 import { HttpError, ErrorCode } from '@/utils/httpError.js'
 
 export const loginService = async (body: LoginBody) => {
-  const user = await prisma.users.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
-      username: body.username,
+      email: body.email,
     },
   })
   if (!user) {
