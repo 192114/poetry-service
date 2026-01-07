@@ -1,6 +1,6 @@
 // src/utils/logger.ts
 import { join } from 'node:path'
-import { createWriteStream } from 'node:fs'
+import { createWriteStream, mkdirSync, existsSync } from 'node:fs'
 
 import pino from 'pino'
 
@@ -8,6 +8,9 @@ import dayjs from '@/utils/dayjs.js' // 新增
 import { config } from '@/config/index.js'
 
 const logDir = 'logs'
+if (!existsSync(logDir)) {
+  mkdirSync(logDir, { recursive: true })
+}
 
 // 用 dayjs（默认 Asia/Shanghai）生成日志文件日期
 const getDate = () => dayjs().format('YYYY-MM-DD')

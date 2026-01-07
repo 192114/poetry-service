@@ -1,6 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 
+import { requestMetaMiddleware } from './middlewares/requestMeta.middleware.js'
+
 import { httpLoggerMiddleware } from '@/middlewares/httpLogger.middleware.js'
 import {
   helmetMiddleware,
@@ -14,6 +16,8 @@ import { config } from '@/config/index.js'
 
 const app = express()
 
+// request 添加meta信息中间件
+app.use(requestMetaMiddleware)
 // 安全中间件
 app.use(helmetMiddleware)
 // CORS 中间件
@@ -30,5 +34,8 @@ app.use(httpLoggerMiddleware)
 app.use(config.app.apiPrefix, routes)
 // 错误处理中间件
 app.use(errorMiddleware)
+
+// 设置信任代理
+app.set('trust proxy', true)
 
 export default app

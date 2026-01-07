@@ -4,6 +4,7 @@ import type { TypedRequest } from '@/types/request.ts'
 
 import { successResponse } from '@/utils/response.js'
 import { loginService, registerService } from '@/services/auth.service.js'
+import config from '@/config/index.js'
 
 export const registerController = async (
   req: TypedRequest<{ body: RegisterBody }>,
@@ -25,8 +26,15 @@ export const loginController = async (
 ) => {
   try {
     const body = req.body
-    const loginInfo = await loginService(body)
-    successResponse(res, loginInfo, '登录成功')
+    const meta = req.meta
+    const { refreshToken, accessToken } = await loginService(body, meta)
+    // 采用rt写到cookie access_token 返回给客户端
+    res.cookie('resfreshToken', refreshToken, {
+      httpOnly: true,
+      sameSite: true,
+      secure: config.app.isProduction,
+    })
+    successResponse(res, { accessToken }, '登录成功')
   } catch (error) {
     next(error)
   }

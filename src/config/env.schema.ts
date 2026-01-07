@@ -79,7 +79,6 @@ export const envSchema = z.object({
     .string()
     .regex(/^\d+(ms|s|m|h|d|w|y)$/)
     .default('7d') as z.ZodType<JwtExpiresIn>,
-  JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters long'),
   JWT_REFRESH_EXPIRES_IN: z
     .string()
     .regex(/^\d+(ms|s|m|h|d|w|y)$/)

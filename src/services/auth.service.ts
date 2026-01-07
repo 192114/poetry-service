@@ -2,13 +2,14 @@ import * as argon2 from 'argon2'
 
 import { verifyEmailCode } from './mail.service.js'
 
+import type { Request } from 'express'
 import type { LoginBody, RegisterBody } from '@/schemas/auth.schema.ts'
 
 import { prisma } from '@/database/prisma.js'
 import { HttpError, ErrorCode } from '@/utils/httpError.js'
 import { generateAccessToken, generateRefreshToken } from '@/utils/jwt.js'
 
-export const loginService = async (body: LoginBody) => {
+export const loginService = async (body: LoginBody, meta: Request['meta']) => {
   const { email, password } = body
   const existingUser = await prisma.user.findUnique({
     where: {
@@ -43,13 +44,15 @@ export const loginService = async (body: LoginBody) => {
   // 认证通过 开始处理jwt
   const jwtPayload = { email, userId }
   const { accessToken } = generateAccessToken(jwtPayload)
-  const { refreshToken, expiresAt } = generateRefreshToken(jwtPayload)
+  const { refreshToken, expiresAt } = generateRefreshToken()
 
   await prisma.userSession.create({
     data: {
       userId,
       refreshToken,
       refreshExpiresAt: expiresAt,
+      ipAddress: meta?.ipAddress,
+      userAgent: meta?.userAgent,
     },
   })
 

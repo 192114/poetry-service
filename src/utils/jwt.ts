@@ -1,3 +1,5 @@
+import { randomBytes } from 'node:crypto'
+
 import jwt from 'jsonwebtoken'
 
 import dayjs from '@/utils/dayjs.js'
@@ -18,7 +20,7 @@ const unitMap = {
   y: 'year',
 } as const
 
-const { secret, expiresIn, refreshSecret, refreshExpiresIn } = config.jwt
+const { secret, expiresIn, refreshExpiresIn } = config.jwt
 
 type ExpiresInType = typeof expiresIn
 
@@ -61,13 +63,11 @@ export const verifyAccessToken = (accessToken: string): JwtPalyload => {
 }
 
 // 生成refresh_token
-export const generateRefreshToken = (
-  payload: JwtPalyload,
-): {
+export const generateRefreshToken = (): {
   refreshToken: string
   expiresAt: Date
 } => {
-  const refreshToken = jwt.sign(payload, refreshSecret, { expiresIn: refreshExpiresIn })
+  const refreshToken = randomBytes(32).toString('hex')
 
   const expiresAt = calcExpiresAt(refreshExpiresIn)
 
@@ -75,9 +75,4 @@ export const generateRefreshToken = (
     refreshToken,
     expiresAt,
   }
-}
-
-// 验证refresh_access_token
-export const verfiyRefreshToken = (refreshToken: string): JwtPalyload => {
-  return jwt.verify(refreshToken, refreshSecret) as JwtPalyload
 }
