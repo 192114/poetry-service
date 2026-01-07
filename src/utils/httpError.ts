@@ -14,6 +14,7 @@ export enum ErrorCode {
 
   // 业务逻辑错误码 (3000-3999)
   // 可以在这里添加更多业务错误码
+  EMAIL_ALREADY_EXISTS = 3001,
 
   // 系统错误 (9000-9999)
   INTERNAL_SERVER_ERROR = 9000,
@@ -29,6 +30,7 @@ const HTTP_STATUS_MAP: Record<ErrorCode, number> = {
   [ErrorCode.TOKEN_EXPIRED]: 401,
   [ErrorCode.INVALID_CREDENTIALS]: 401,
   [ErrorCode.TOO_MANY_REQUESTS]: 429,
+  [ErrorCode.EMAIL_ALREADY_EXISTS]: 429,
 }
 
 export class HttpError extends Error {

@@ -24,6 +24,7 @@ const CODE_CONFIG = {
   LENGTH: 6, // 验证码长度
   EXPIRE_MINUTES: 5, // 过期时间（分钟）
   MIN_SEND_INTERVAL_SECONDS: 60, // 最小发送间隔（秒）
+  MAX_ATTEMPTS: 5, // 最大尝试次数
 }
 
 function generateCode(length = 6): string {
@@ -182,4 +183,72 @@ export const sendEmailCodeService = async (query: SendEmailCodeQuery) => {
     })
     throw new HttpError(ErrorCode.INTERNAL_SERVER_ERROR, '验证码发送失败，请稍后重试')
   }
+}
+
+// 验证验证码是否正确
+export const verifyEmailCode = async (
+  email: string,
+  code: string,
+  type: 'REGISTER' | 'RESET_PASSWORD',
+) => {
+  const now = new Date()
+
+  const existingVerification = await prisma.emailVerification.findFirst({
+    where: {
+      email,
+      type,
+      used: false,
+      expiresAt: {
+        gt: now,
+      },
+    },
+    orderBy: {
+      type: 'desc',
+    },
+  })
+
+  // 如果验证码不存在
+  if (!existingVerification) {
+    throw new HttpError(ErrorCode.VALIDATION_ERROR, '验证码不存在或已过期')
+  }
+
+  const { codeHash, id, attempts } = existingVerification
+
+  const isValidate = await argon2.verify(codeHash, code)
+
+  // 校验不通过
+  if (!isValidate) {
+    const nextAttempts = attempts + 1
+    const isExceed = nextAttempts >= CODE_CONFIG.MAX_ATTEMPTS
+    // 更新验证次数
+    await prisma.emailVerification.update({
+      where: {
+        id,
+      },
+      data: {
+        attempts: { increment: 1 },
+        used: isExceed,
+      },
+    })
+
+    const remainingAttempts = CODE_CONFIG.MAX_ATTEMPTS - nextAttempts
+
+    const errMessage = isExceed
+      ? '验证码使用次数过多，请重新获取'
+      : `验证码有误，还可以尝试${remainingAttempts}次`
+
+    throw new HttpError(ErrorCode.VALIDATION_ERROR, errMessage)
+  }
+
+  // 校验通过 更新验证码状态
+  await prisma.emailVerification.update({
+    where: {
+      id,
+    },
+    data: {
+      used: true,
+    },
+  })
+
+  return existingVerification
 }
