@@ -41,6 +41,7 @@ export const config = {
   },
   // upload 配置
   upload: {
+    baseUrl: env.UPLOAD_BASE_URL,
     maxSize: env.UPLOAD_MAX_SIZE,
     maxFiles: env.UPLOAD_MAX_FILES,
     dir: env.UPLOAD_DIR,

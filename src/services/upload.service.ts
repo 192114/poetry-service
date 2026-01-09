@@ -2,9 +2,9 @@ import { config } from '@/config/index.js'
 import { HttpError, ErrorCode } from '@/utils/httpError.js'
 
 const buildPublicUrl = (filename: string) => {
-  const { dir } = config.upload
+  const { dir, baseUrl } = config.upload
 
-  return `/${dir}/${filename}`
+  return `${baseUrl}/${dir}/${filename}`
 }
 
 export const uploadSingleService = async (file?: Express.Multer.File) => {

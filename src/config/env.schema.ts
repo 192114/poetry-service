@@ -96,6 +96,7 @@ export const envSchema = z.object({
   SMTP_FROM: z.email({ message: 'SMTP_FROM must be a valid email address' }),
 
   // upload 相关
+  UPLOAD_BASE_URL: z.url(),
   UPLOAD_MAX_SIZE: z.string().regex(/^\d+$/).transform(Number).default(10),
   UPLOAD_MAX_FILES: z.string().regex(/^\d+$/).transform(Number).default(10),
   UPLOAD_DIR: z.string().default('uploads'),
