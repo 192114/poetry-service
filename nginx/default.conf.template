@@ -1,0 +1,24 @@
+server {
+    listen 80;
+    server_name _;
+    client_max_body_size 100m;
+
+    # 静态资源
+    location /${UPLOAD_DIR}/ {
+        alias /var/www/${UPLOAD_DIR}/;
+        autoindex off;
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800";
+    }
+
+    # API 代理 (这个区块是否生效取决于下一步的逻辑)
+    ##__API_BLOCK_START__
+    location ${API_PREFIX}/ {
+        proxy_pass http://${API_UPSTREAM_HOST}:${API_UPSTREAM_PORT}${API_PREFIX}/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    ##__API_BLOCK_END__
+}
