@@ -1,11 +1,32 @@
+# 使用扩展字段定义公共模板
+x-nginx-common: &nginx-common
+  image: nginx:1.27-alpine
+  env_file: [.env]
+  environment: &nginx-common-env
+    UPLOAD_DIR: ${UPLOAD_DIR:-uploads}
+    API_PREFIX: ${API_PREFIX:-/api}
+    API_UPSTREAM_HOST: ${API_UPSTREAM_HOST:-app}
+    API_UPSTREAM_PORT: ${API_UPSTREAM_PORT:-8090}
+    NGINX_ENVSUBST_FILTERED_VAR_NAMES: UPLOAD_DIR API_PREFIX API_UPSTREAM_HOST API_UPSTREAM_PORT API_PORT
+  ports:
+    - '${NGINX_PORT:-80}:80'
+  # 统一使用外部脚本作为入口
+  entrypoint: ['/entrypoint.sh']
+  volumes:
+    # 挂载脚本
+    - ./nginx/entrypoint.sh:/entrypoint.sh:ro
+    # 挂载配置模板
+    - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+
 services:
   app:
     build: .
     profiles: ['prod']
-    env_file:
-      - .env
+    env_file: [.env]
+    environment:
+      - API_UPSTREAM_PORT=${API_UPSTREAM_PORT:-8090}
     ports:
-      - '${API_PORT}:8090'
+      - '${API_PORT}:${API_UPSTREAM_PORT}'
     depends_on:
       db:
         condition: service_healthy
@@ -14,72 +35,31 @@ services:
       - uploads_data:/app/${UPLOAD_DIR:-uploads}
 
   nginx-dev:
-    image: nginx:1.27-alpine
+    <<: *nginx-common
     profiles: ['dev']
-    env_file:
-      - .env
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - UPLOAD_DIR=${UPLOAD_DIR:-uploads}
-      - API_PREFIX=${API_PREFIX:-/api}
-      - API_UPSTREAM_HOST=${API_UPSTREAM_HOST:-app}
-      - API_UPSTREAM_PORT=${API_UPSTREAM_PORT:-8090}
-      # 限制 envsubst 只替换这几个变量，保护 $host, $remote_addr 等不被清空
-      - NGINX_ENVSUBST_FILTERED_VAR_NAMES=UPLOAD_DIR API_PREFIX API_UPSTREAM_HOST API_UPSTREAM_PORT
-    ports:
-      - '${NGINX_PORT:-80}:80'
+      <<: *nginx-common-env
+      NODE_ENV: development
     volumes:
-      - ./uploads:/var/www/${UPLOAD_DIR:-uploads}:ro
-      # 挂载模板文件
+      - ./nginx/entrypoint.sh:/entrypoint.sh:ro
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-    # 只需要保留简单的逻辑来根据环境修改模板即可
-    entrypoint: >
-      /bin/sh -c "
-        if [ \"$NODE_ENV\" != \"production\" ]; then
-          echo '[nginx] Non-production: Removing API block';
-          sed -i '/##__API_BLOCK_START__/,/##__API_BLOCK_END__/d' /etc/nginx/templates/default.conf.template;
-        else
-          echo '[nginx] Production: Keeping API block';
-          sed -i '/##__API_BLOCK_START__/d;/##__API_BLOCK_END__/d' /etc/nginx/templates/default.conf.template;
-        fi;
-        exec /docker-entrypoint.sh nginx -g 'daemon off;'"
+      - ./uploads:/var/www/${UPLOAD_DIR:-uploads}:ro
 
   nginx:
-    image: nginx:1.27-alpine
+    <<: *nginx-common
     profiles: ['prod']
-    env_file:
-      - .env
     environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - UPLOAD_DIR=${UPLOAD_DIR:-uploads}
-      - API_PREFIX=${API_PREFIX:-/api}
-      - API_UPSTREAM_HOST=${API_UPSTREAM_HOST:-app}
-      - API_UPSTREAM_PORT=${API_UPSTREAM_PORT:-8090}
-      # 限制 envsubst 只替换这几个变量，保护 $host, $remote_addr 等不被清空
-      - NGINX_ENVSUBST_FILTERED_VAR_NAMES=UPLOAD_DIR API_PREFIX API_UPSTREAM_HOST API_UPSTREAM_PORT
-    ports:
-      - '${NGINX_PORT:-80}:80'
+      <<: *nginx-common-env
+      NODE_ENV: production
     volumes:
-      - uploads_data:/var/www/${UPLOAD_DIR:-uploads}:ro
-      # 挂载模板文件
+      - ./nginx/entrypoint.sh:/entrypoint.sh:ro
       - ./nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
-    # 只需要保留简单的逻辑来根据环境修改模板即可
-    entrypoint: >
-      /bin/sh -c "
-        if [ \"$NODE_ENV\" != \"production\" ]; then
-          echo '[nginx] Non-production: Removing API block';
-          sed -i '/##__API_BLOCK_START__/,/##__API_BLOCK_END__/d' /etc/nginx/templates/default.conf.template;
-        else
-          echo '[nginx] Production: Keeping API block';
-          sed -i '/##__API_BLOCK_START__/d;/##__API_BLOCK_END__/d' /etc/nginx/templates/default.conf.template;
-        fi;
-        exec /docker-entrypoint.sh nginx -g 'daemon off;'"
+      - uploads_data:/var/www/${UPLOAD_DIR:-uploads}:ro
 
   db:
     image: postgres:16-alpine
     profiles: ['prod', 'dev']
-    env_file:
-      - .env
+    env_file: [.env]
     ports:
       - '${POSTGRES_PORT}:5432'
     environment:
@@ -88,7 +68,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_OWNER_PASSWORD}
       POSTGRES_TIMEZONE: Asia/Shanghai
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}']
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
       interval: 5s
       timeout: 5s
       retries: 10
