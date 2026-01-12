@@ -1,0 +1,35 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - 'v*'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+
+      - name: Sync project to server
+        run: |
+          rsync -az --delete \
+            -e "ssh -p ${{ secrets.DEPLOY_PORT }}" \
+            --exclude=".git" \
+            ./ \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/node-express-boilerplate
+
+      - name: Deploy with Docker Compose (prod profile)
+        run: |
+          ssh -p ${{ secrets.DEPLOY_PORT }} \
+            ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << 'EOF'
+            cd /opt/node-express-boilerplate
+            docker compose --profile prod up -d --build
+          EOF
