@@ -13,12 +13,16 @@ server {
 
     # API 代理 (这个区块是否生效取决于下一步的逻辑)
     ##__API_BLOCK_START__
-    location ${API_PREFIX}/ {
-        proxy_pass http://${API_UPSTREAM_HOST}:${API_UPSTREAM_PORT}${API_PREFIX}/;
+    location ${API_PREFIX} {
+        proxy_pass http://${API_UPSTREAM_HOST}:${API_UPSTREAM_PORT}${API_PREFIX};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        # 针对 502 的额外超时设置
+        proxy_connect_timeout 60s;
+        proxy_read_timeout 60s;
     }
     ##__API_BLOCK_END__
 }
