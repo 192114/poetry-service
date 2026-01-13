@@ -70,6 +70,7 @@ RUN npm config set registry https://registry.npmmirror.com \
     && npm install -g pnpm@10.11.1
 
 COPY package.json ./
+COPY prisma.config.ts ./  
 
 # A. 拷贝生产环境所需的 node_modules
 COPY --from=deps /app/node_modules ./node_modules
