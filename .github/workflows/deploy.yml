@@ -26,6 +26,8 @@ jobs:
           rsync -az --delete \
             -e "ssh -p ${{ secrets.DEPLOY_PORT }}" \
             --exclude=".git" \
+            --exclude=".env" \
+            --exclude="logs" \
             ./ \
             ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/opt/node-express-boilerplate
 
